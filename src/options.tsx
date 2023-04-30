@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-
+// 这个页面是点击小图标右键下拉中的选项弹出的
 const Options = () => {
   const [color, setColor] = useState<string>("");
   const [status, setStatus] = useState<string>("");
@@ -9,6 +9,7 @@ const Options = () => {
   useEffect(() => {
     // Restores select box and checkbox state using the preferences
     // stored in chrome.storage.
+    //  使用存储在 chrome.storage 中的首选项恢复选择框和复选框状态。
     chrome.storage.sync.get(
       {
         favoriteColor: "red",

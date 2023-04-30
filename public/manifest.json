@@ -8,9 +8,9 @@
   "options_ui": {
     "page": "options.html"
   },
-
   "action": {
-    "default_icon": "icon.png",
+    "default_icon": "logo192.png",
+    "default_title": "Gas Show",
     "default_popup": "popup.html"
   },
 
@@ -28,7 +28,9 @@
   "permissions": [
     "storage"
   ],
-
+  "icons": {
+    "192": "logo192.png"
+  },
   "host_permissions": [
     "<all_urls>"
   ]
