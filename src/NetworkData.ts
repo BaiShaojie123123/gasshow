@@ -9,6 +9,7 @@ export interface NetworkData {
 
 export const NETWORK_NAMES = {
     ETH_MAIN: 'ETH Main',
+    Zks_Era: 'Zks Era',
     OPTIMISM: 'Optimism',
     BSC: 'Bsc Smart Chain',
     GOERLI: 'Goerli',
@@ -21,6 +22,7 @@ export const NETWORK_NAMES = {
 
 export const NetworkId = {
     ETH_MAIN: 1,
+    Zks_Era: 324,
     OPTIMISM: 10,
     BSC_MAIN: 56,
     GOERLI: 5,
@@ -39,6 +41,12 @@ export const networkDataList: NetworkData[] = [
         gasPrice: 0,
         chainId: NetworkId.ETH_MAIN,
         rpcUrl: 'https://eth-mainnet-public.unifra.io'
+    },
+    {
+        name: NETWORK_NAMES.Zks_Era,
+        gasPrice: 0,
+        chainId: NetworkId.Zks_Era,
+        rpcUrl: 'https://mainnet.era.zksync.io'
     },
     {
         name: NETWORK_NAMES.OPTIMISM,
@@ -77,11 +85,11 @@ export const networkDataList: NetworkData[] = [
         rpcUrl: 'https://avalanche.public-rpc.com'
     },
 
-    // {
-    //     name: NETWORK_NAMES.GOERLI,
-    //     gasPrice: 0,
-    //     chainId: NetworkId.GOERLI,
-    //     rpcUrl: 'https://eth-goerli.api.onfinality.io/public'
-    // },
-
+    {
+        name: NETWORK_NAMES.GOERLI,
+        gasPrice: 0,
+        chainId: NetworkId.GOERLI,
+        rpcUrl: 'https://eth-goerli.api.onfinality.io/public'
+    },
+//
 ];

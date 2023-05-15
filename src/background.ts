@@ -4,7 +4,7 @@ import {networkDataList, NetworkData, NetworkId} from './NetworkData';
 
 export function format_price(price: number): string {
     // 判断 price 是否小于 0，如果小于 0 则截取长度为前 5 位
-    if (price < 0) {
+    if (price < 1) {
         return price.toString().substring(0, 5);
     } else {
         // 截取小数点之前的字符串
@@ -32,7 +32,6 @@ async function getGasPrice(netId: number, rpcUrl: string): Promise<number> {
         // 从 Chrome storage 中获取当前选择的网络
         chrome.storage.sync.get(['selectedNetwork'], (result) => {
             if (result.selectedNetwork === netId) { // 判断是否是选择的网络
-
                 //判断 price是否大于0 如果
                 chrome.action.setBadgeText({ text:  format_price(price)}); // 更新徽章文本为当前 gas price 值
             }
