@@ -18,6 +18,7 @@ export const NETWORK_NAMES = {
     BASE_GOERLI:'Base Goerli',
     NAME_NETWORK_FANTOM_OPERA : 'Fantom Opera',
     Name_Network_Avalanche_Network_C_Chain : 'Avalanche C-Chain',
+    LINEA_GOERLI_TEST_NETWORK : 'linea goerli',
 };
 
 export const NetworkId = {
@@ -31,6 +32,7 @@ export const NetworkId = {
     BASE_GOERLI: 84531,
     Avalanche_Network_C_Chain : 43114,
     FANTOM_OPERA : 250,
+    LINEA_GOERLI_TEST_NETWORK : 59140,
 }
 
 
@@ -90,6 +92,12 @@ export const networkDataList: NetworkData[] = [
         gasPrice: 0,
         chainId: NetworkId.GOERLI,
         rpcUrl: 'https://eth-goerli.api.onfinality.io/public'
+    },
+    {
+        name: NETWORK_NAMES.LINEA_GOERLI_TEST_NETWORK,
+        gasPrice: 0,
+        chainId: NetworkId.LINEA_GOERLI_TEST_NETWORK,
+        rpcUrl: 'https://rpc.goerli.linea.build'
     },
 //
 ];
