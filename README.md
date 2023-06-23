@@ -78,20 +78,20 @@ Load `dist` directory
 这个浏览器支持传统的插件点击弹出栏，以及每次打开一个新 Tab 都能展示我的应用，这样能够帮助我随时了解我当前正在进行的工作，大致形式如下：
 
 弹出栏：
-![img.png](img.png)
+![img.png](readme_imgs/img.png)
 
 新 Tab：
 
-![img_1.png](img_1.png)
+![img_1.png](readme_imgs/img_1.png)
 
 针对上面需求的形式不知道大家是否比较熟悉了？没错，这个插件的框架形式和 掘金 的插件类似，我们看下掘金的 Chrome 插件：
 
 弹出框：
 
-![img_2.png](img_2.png)
+![img_2.png](readme_imgs/img_2.png)
 
 新 Tab：
-![img_3.png](img_3.png)
+![img_3.png](readme_imgs/img_3.png)
 
 也就是说，在看完本次文章，你基本上拥有了开发一个掘金插件的能力，心动了*？
 
@@ -117,10 +117,10 @@ content.js，此脚本是在你打开一个新的网页的时候，Chrome 浏览
 DOM，所以需要通过 content 脚本操作 DOM，然后发送给到插件的处理逻辑
 
 上述 5 大文件组成了一个 Chrome 插件所需要的必须元素，逻辑关系如下：
-![img_4.png](img_4.png)
+![img_4.png](readme_imgs/img_4.png)
 
 注意注意：background.js 和 popup.js 在 chrome 框架中执行的生命周期不同
-![img_5.png](img_5.png)
+![img_5.png](readme_imgs/img_5.png)
 
 可以看到，其实开发一个 Chrome 的插件也是使用 HTML/JavaScript/CSS 这些知识，只不过使用场景，每种 JavaScript 使用的权限与功能、操作的
 API 不太一样，那么既然是使用基本的 Web 基础技术，我们就可以借助更为上层的 Web 开发框架如 React 等来将 Chrome
@@ -132,7 +132,7 @@ API 不太一样，那么既然是使用基本的 Web 基础技术，我们就�
 npx create-react-app chrome-react-extension --template typescript
 
 初始化好项目、安装完依赖之后，我们可以看到 CRA 产生的模板代码，其中就有我们需要的 public/manifest.json 文件：
-![img_6.png](img_6.png)
+![img_6.png](readme_imgs/img_6.png)
 
 当然内容并没有我们上图那样丰富我们需要做一些修改，将内容改为如下内容：
 
@@ -201,9 +201,9 @@ npm run build
 index.html 来作为点击插件时的 Popup 的展示页，这个时候我们就可以使用 Chrome 加载我们构建好的文件，来查看插件运行效果了：
 
 我们打开扩展程序面板，设置开发者模式，然后点击加载文件，选择我们的 build 文件地址加载：
-![img_7.png](img_7.png)
+![img_7.png](readme_imgs/img_7.png)
 Magic ！我们可以在浏览器里面看到我们的插件，并使用它了，一个最简化插件完成！
-![img_8.png](img_8.png)
+![img_8.png](readme_imgs/img_8.png)
 当然这里我们虽然能够使用 React/TypeScript 以及一切现代的 Web 开发技术来写插件，但是目前没有很好的方式能够实时的进行开发-查看效果，就是我们常见的
 HMR、Live Reload 这种技术暂时还没有很好的支持到 Chrome 插件的开发，所以每次我们需要查看编写的效果都需要构建之后点击插件查看。
 

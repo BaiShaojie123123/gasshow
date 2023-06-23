@@ -1,8 +1,7 @@
 // 定义 NetworkData 对象
 export interface NetworkData {
-
     name: string;
-    gasPrice: number;
+    gasPrice?: number;
     chainId: number;
     rpcUrl: string;
 }

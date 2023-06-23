@@ -1,65 +1,151 @@
 import Web3 from 'web3';
-import {networkDataList, NetworkData, NetworkId} from './NetworkData';
+import { networkDataList, NetworkData } from './NetworkData';
 
-
-export function format_price(price: number): string {
-    // 判断 price 是否小于 0，如果小于 0 则截取长度为前 5 位
-    if (price < 1) {
+export function formatPrice(price: number | undefined): string {
+    if (price !== undefined && price < 1) {
         return price.toString().substring(0, 5);
-    } else {
-        // 截取小数点之前的字符串
+    } else if (price !== undefined) {
         const parts = price.toString().split(".");
         if (parts.length > 0) {
             return parts[0];
         } else {
             return "";
         }
+    } else {
+        return "";
     }
 }
 
-
-// 将 networkDataList 写入 chrome.storage 中
-chrome.storage.sync.set({networkDataList: networkDataList, selectedNetwork: NetworkId.ETH_MAIN, selectedNetworkStatus: true});
-async function getGasPrice(netId: number, rpcUrl: string): Promise<number> {
-    let price = 0
+export async function getGasPrice(netId: number, rpcUrl: string): Promise<number> {
     try {
-        console.log('rpcUrl: '+rpcUrl)
-        let web3 = new Web3(rpcUrl);
-        let gasPriceWei = await web3.eth.getGasPrice();
-        let gasPriceGwei = parseFloat(web3.utils.fromWei(gasPriceWei, 'gwei')).toFixed(3);
-        price =  parseFloat(gasPriceGwei);
-        // 判断是否是选择的网络,如果是更新徽章文本
-        // 从 Chrome storage 中获取当前选择的网络
-        chrome.storage.sync.get(['selectedNetwork'], (result) => {
-            if (result.selectedNetwork === netId) { // 判断是否是选择的网络
-                //判断 price是否大于0 如果
-                chrome.action.setBadgeText({ text:  format_price(price)}); // 更新徽章文本为当前 gas price 值
+        const web3 = new Web3(rpcUrl);
+        const gasPriceWei = await web3.eth.getGasPrice();
+        const gasPriceGwei = parseFloat(web3.utils.fromWei(gasPriceWei, 'gwei')).toFixed(3);
+        const price = parseFloat(gasPriceGwei);
+
+        return new Promise((resolve) => {
+            chrome.storage.sync.get(['selectedNetwork'], (result) => {
+                if (result.selectedNetwork === netId) {
+                    chrome.action.setBadgeText({ text: formatPrice(price) });
+                }
+                resolve(price);
+            });
+        });
+    } catch (error) {
+        console.error(error);
+        return 0;
+    }
+}
+
+export async function getSavedNetworks(needGasPrice: boolean = false): Promise<NetworkData[]> {
+    return new Promise((resolve) => {
+        chrome.storage.sync.get(['networkDataList'], async (result) => {
+            if (result.networkDataList && result.networkDataList.length > 0) {
+                console.log('获取:', result.networkDataList)
+                if (needGasPrice) {
+                    resolve(result.networkDataList as NetworkData[]);
+                } else {
+                    const filteredNetworks = filterGasPrice(result.networkDataList);
+                    resolve(filteredNetworks);
+                }
+            } else {
+                const savedNetworks = localStorage.getItem('networks');
+                if (savedNetworks) {
+                    const parsedNetworks = JSON.parse(savedNetworks) as NetworkData[];
+                    if (needGasPrice) {
+                        resolve(parsedNetworks);
+                    } else {
+                        const filteredNetworks = filterGasPrice(parsedNetworks);
+                        resolve(filteredNetworks);
+                    }
+                } else {
+                    const defaultNetworks = needGasPrice ? networkDataList : filterGasPrice(networkDataList);
+                    resolve(defaultNetworks);
+                }
             }
         });
-        return price
-    }
-    catch (error) {
-        return price        //     return
-    }
+    });
 }
+// ...
 
-async function updateGasPrices() {
-    const updatedNetworkDataList: NetworkData[] = [];
-
-    for (const networkData of networkDataList) {
-        const updatedGasPrice = await getGasPrice(networkData.chainId, networkData.rpcUrl);
-        updatedNetworkDataList.push({...networkData, gasPrice: updatedGasPrice});
+export async function setDefaultNetworkId(networkId: number): Promise<void> {
+    return new Promise((resolve) => {
+        chrome.storage.sync.set({ selectedNetwork: networkId }, () => {
+            console.log('Default network ID set:', networkId);
+            updateGasPrices();
+            handleBadgeUpdate(networkId);
+            resolve();
+        });
+    });
+}
+const handleBadgeUpdate = (networkId: number) => {
+    const selectedNetworkData = networkDataList.find(
+        (network) => network.chainId === networkId
+    );
+    if (selectedNetworkData) {
+        const gasPrice = selectedNetworkData.gasPrice;
+        chrome.action.setBadgeText({text: formatPrice(gasPrice)});
     }
+};
+// ...
 
-    chrome.storage.sync.set({networkDataList: updatedNetworkDataList}, () => {
-        console.log('NetworkDataList updated:', updatedNetworkDataList);
-        chrome.runtime.sendMessage({type: 'networkDataList', data: updatedNetworkDataList});
+function filterGasPrice(networks: NetworkData[]): NetworkData[] {
+    return networks.map((network) => {
+        const { gasPrice, ...networkWithoutGasPrice } = network;
+        return networkWithoutGasPrice;
     });
 }
 
+export const saveNetworkDataList = (networkDataList: NetworkData[]): void => {
+    const orderedNetworkDataList: NetworkData[] = [];
 
-// 每分钟更新 networkDataList 中的 gasPrice
-setInterval(updateGasPrices, 5000); // 每分钟更新一次 gasPrice
+    networkDataList.forEach((network) => {
+        const foundNetwork = networkDataList.find((item) => item.chainId === network.chainId);
+        if (foundNetwork) {
+            orderedNetworkDataList.push(foundNetwork);
+        }
+    });
 
-// 首次运行时立即更新 gasPrice
-updateGasPrices();
+    chrome.storage.sync.set({ networkDataList: orderedNetworkDataList }, () => {
+        console.log('NetworkDataList saved:', orderedNetworkDataList);
+    });
+};
+
+export const saveNetworks = async (networks: NetworkData[]): Promise<void> => {
+    // 过滤掉 gasPrice 字段，保存到 localStorage
+    const filteredNetworks = networks.map((network) => {
+        const { gasPrice, ...networkWithoutGasPrice } = network;
+        return networkWithoutGasPrice;
+    });
+
+    console.log('Networks saved:', filteredNetworks);
+    localStorage.setItem('networks', JSON.stringify(filteredNetworks));
+
+    // 获取已选中的网络ID
+    const selectedNetworkId = await new Promise<number>((resolve) => {
+        chrome.storage.sync.get(['selectedNetwork'], (result) => {
+            resolve(result.selectedNetwork);
+        });
+    });
+    console.log('selectedNetworkId:', selectedNetworkId);
+    // 保存完整的网络信息到 chrome.storage
+    saveNetworkDataList(networks);
+};
+
+export const updateGasPrices = async (): Promise<void> => {
+    console.log('Updating gas prices...');
+    const networkDataList = await getSavedNetworks(true);
+
+    const updatedNetworks = await Promise.all(
+        networkDataList.map(async (network) => {
+            const updatedGasPrice = await getGasPrice(network.chainId, network.rpcUrl);
+            network.gasPrice = updatedGasPrice;
+            return network;
+        })
+    );
+
+    saveNetworkDataList(updatedNetworks);
+};
+
+// 定时器，每隔一段时间更新一次 gasPrice
+setInterval(updateGasPrices, 500000);

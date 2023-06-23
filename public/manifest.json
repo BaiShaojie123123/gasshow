@@ -1,24 +1,27 @@
 {
   "manifest_version": 3,
-
-  "name": "Chrome Extension TypeScript Starter",
+  "name": "Gas Show",
   "description": "Chrome Extension, TypeScript, Visual Studio Code",
   "version": "1.0",
 
-  "options_ui": {
-    "page": "options.html"
-  },
   "action": {
-    "default_icon": "logo192.png",
+    "default_icon": {
+      "192": "imgs/logo/logo192.png",
+      "512": "imgs/logo/logo512.png"
+    },
     "default_title": "Gas Show",
     "default_popup": "popup.html"
   },
 
+  "options_ui": {
+    "page": "rpc-settings.html"
+  },
+
   "content_scripts": [
-      {
-          "matches": ["<all_urls>"],
-          "js": ["js/vendor.js", "js/content_script.js"]
-      }
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/vendor.js", "js/content_script.js"]
+    }
   ],
 
   "background": {
@@ -26,11 +29,15 @@
   },
 
   "permissions": [
-    "storage"
+    "storage",
+    "tabs"
   ],
+
   "icons": {
-    "192": "logo192.png"
+    "192": "imgs/logo/logo192.png",
+    "512": "imgs/logo/logo512.png"
   },
+
   "host_permissions": [
     "<all_urls>"
   ]
