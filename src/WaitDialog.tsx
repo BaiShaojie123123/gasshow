@@ -5,31 +5,57 @@ import { CheckCircle as CheckCircleIcon, Cancel as CancelIcon } from '@mui/icons
 interface WaitDialogProps {
     open: boolean;
     onClose: () => void;
-    isLoading: boolean;
-    isSuccess: boolean;
-    failureMessage: string;
+    loadingState: "loading" | "success" | "failure";
+    message: string;
 }
 
-const WaitDialog: React.FC<WaitDialogProps> = ({
-                                                   open,
-                                                   onClose,
-                                                   isLoading,
-                                                   isSuccess,
-                                                   failureMessage,
-                                               }) => {
+const WaitDialog: React.FC<WaitDialogProps> = ({ open, onClose, loadingState, message }) => {
     const [internalOpen, setInternalOpen] = useState(false);
 
     useEffect(() => {
         setInternalOpen(open);
     }, [open]);
 
-    console.log('isLoading',isLoading)
-    console.log('isSuccess',isSuccess)
+    const renderDialogContent = () => {
+        switch (loadingState) {
+            case "loading":
+                return (
+                    <Grid item>
+                        <CircularProgress />
+                    </Grid>
+                );
+            case "success":
+                return (
+                    <>
+                        <Grid item>
+                            <CheckCircleIcon color="primary" fontSize="large" />
+                        </Grid>
+                        <Grid item>
+                            <Typography variant="body1">{message}</Typography>
+                        </Grid>
+                    </>
+                );
+            case "failure":
+                return (
+                    <>
+                        <Grid item>
+                            <CancelIcon color="error" fontSize="large" />
+                        </Grid>
+                        <Grid item>
+                            <Typography variant="body1">{message}</Typography>
+                        </Grid>
+                    </>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
         <Dialog open={internalOpen} fullWidth maxWidth="xs" onClose={onClose}>
             <DialogTitle>
                 <Grid container justifyContent="flex-end" alignItems="center">
-                    {!isSuccess && (
+                    {loadingState !== "success" && (
                         <IconButton onClick={onClose} color="inherit">
                             <CancelIcon />
                         </IconButton>
@@ -38,37 +64,7 @@ const WaitDialog: React.FC<WaitDialogProps> = ({
             </DialogTitle>
             <DialogContent>
                 <Grid container direction="column" alignItems="center" spacing={2}>
-                    {isLoading ? (
-                        <Grid item>
-                            <CircularProgress />
-                        </Grid>
-                    ) : (
-                        <>
-                            {isSuccess ? (
-                                <>
-                                    <Grid item>
-                                        <CheckCircleIcon color="primary" fontSize="large" />
-                                    </Grid>
-                                    <Grid item>
-                                        <Typography variant="body1">
-                                            Success
-                                        </Typography>
-                                    </Grid>
-                                </>
-                            ) : (
-                                <>
-                                    <Grid item>
-                                        <CancelIcon color="error" fontSize="large" />
-                                    </Grid>
-                                    <Grid item>
-                                        <Typography variant="body1">
-                                            {failureMessage}
-                                        </Typography>
-                                    </Grid>
-                                </>
-                            )}
-                        </>
-                    )}
+                    {renderDialogContent()}
                 </Grid>
             </DialogContent>
         </Dialog>

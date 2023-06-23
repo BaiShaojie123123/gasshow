@@ -24,7 +24,7 @@ export async function getGasPrice(netId: number, rpcUrl: string): Promise<number
         const price = parseFloat(gasPriceGwei);
 
         return new Promise((resolve) => {
-            chrome.storage.sync.get(['selectedNetwork'], (result) => {
+            chrome.storage.sync.get(['selectedNetworkId'], (result) => {
                 if (result.selectedNetwork === netId) {
                     chrome.action.setBadgeText({ text: formatPrice(price) });
                 }
@@ -37,15 +37,25 @@ export async function getGasPrice(netId: number, rpcUrl: string): Promise<number
     }
 }
 
+// 检查网络id是否已经存在
+export const checkNetworkIdExists = (networkId: number,networks:NetworkData[]): boolean => {
+    for (let i = 0; i < networks.length; i++) {
+        if (networks[i].chainId == networkId) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 export async function getSavedNetworks(needGasPrice: boolean = false): Promise<NetworkData[]> {
     return new Promise((resolve) => {
-        chrome.storage.sync.get(['networkDataList'], async (result) => {
-            if (result.networkDataList && result.networkDataList.length > 0) {
-                console.log('获取:', result.networkDataList)
+        chrome.storage.sync.get(['networks'], async (result) => {
+            if (result.networks && result.networks.length > 0) {
                 if (needGasPrice) {
-                    resolve(result.networkDataList as NetworkData[]);
+                    resolve(result.networks as NetworkData[]);
                 } else {
-                    const filteredNetworks = filterGasPrice(result.networkDataList);
+                    const filteredNetworks = filterGasPrice(result.networks);
                     resolve(filteredNetworks);
                 }
             } else {
@@ -70,8 +80,7 @@ export async function getSavedNetworks(needGasPrice: boolean = false): Promise<N
 
 export async function setDefaultNetworkId(networkId: number): Promise<void> {
     return new Promise((resolve) => {
-        chrome.storage.sync.set({ selectedNetwork: networkId }, () => {
-            console.log('Default network ID set:', networkId);
+        chrome.storage.sync.set({ selectedNetworkId: networkId }, () => {
             updateGasPrices();
             handleBadgeUpdate(networkId);
             resolve();
@@ -106,7 +115,7 @@ export const saveNetworkDataList = (networkDataList: NetworkData[]): void => {
         }
     });
 
-    chrome.storage.sync.set({ networkDataList: orderedNetworkDataList }, () => {
+    chrome.storage.sync.set({ networks: orderedNetworkDataList }, () => {
         console.log('NetworkDataList saved:', orderedNetworkDataList);
     });
 };
@@ -118,22 +127,12 @@ export const saveNetworks = async (networks: NetworkData[]): Promise<void> => {
         return networkWithoutGasPrice;
     });
 
-    console.log('Networks saved:', filteredNetworks);
     localStorage.setItem('networks', JSON.stringify(filteredNetworks));
-
-    // 获取已选中的网络ID
-    const selectedNetworkId = await new Promise<number>((resolve) => {
-        chrome.storage.sync.get(['selectedNetwork'], (result) => {
-            resolve(result.selectedNetwork);
-        });
-    });
-    console.log('selectedNetworkId:', selectedNetworkId);
     // 保存完整的网络信息到 chrome.storage
     saveNetworkDataList(networks);
 };
 
 export const updateGasPrices = async (): Promise<void> => {
-    console.log('Updating gas prices...');
     const networkDataList = await getSavedNetworks(true);
 
     const updatedNetworks = await Promise.all(
@@ -149,3 +148,5 @@ export const updateGasPrices = async (): Promise<void> => {
 
 // 定时器，每隔一段时间更新一次 gasPrice
 setInterval(updateGasPrices, 500000);
+
+

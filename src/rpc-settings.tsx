@@ -1,22 +1,30 @@
-import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
+import React, { useEffect, useState } from "react";
 import {
-    Typography,
+    Box,
+    Card,
     createTheme,
     ThemeProvider,
-    Card,
-    Box,
-    Button,
+    Typography,
 } from "@mui/material";
 import { blue } from "@mui/material/colors";
-import { NetworkData, networkDataList, NetworkId } from "./NetworkData";
-import { saveNetworks, setDefaultNetworkId } from "./background";
+import {
+    NetworkData,
+    networkDataList,
+    NetworkId,
+
+} from "./NetworkData";
+import {
+    getSavedNetworks,
+    saveNetworks,
+    setDefaultNetworkId,
+} from "./background";
 import ConfirmationDialog from "./ConfirmationDialog";
 import NetworkSelect from "./NetworkSelect";
 import { NetworkFormTab } from "./NetworkFormTab";
 import { SelectChangeEvent } from "@mui/material/Select";
-import {createRoot} from "react-dom/client";
-import {goHome} from "./GoTo";
+import { createRoot } from "react-dom/client";
+import { goHome } from "./GoTo";
+import {getDefaultNetworkData} from "./interface";
 
 const theme = createTheme({
     palette: {
@@ -26,65 +34,73 @@ const theme = createTheme({
     },
 });
 
-const getDefaultNetwork = (): NetworkData => ({
-    name: "",
-    gasPrice: 0,
-    chainId: 0,
-    rpcUrl: "",
-});
-
 const RpcSettings = () => {
-    const [networks, setNetworks] = useState<NetworkData[]>(() => {
-        const savedNetworks = localStorage.getItem("networks");
-        return savedNetworks ? JSON.parse(savedNetworks) : networkDataList;
-    });
-    const [selectedNetwork, setSelectedNetwork] = useState<NetworkData>(
-        getDefaultNetwork()
-    );
+    const [networks, setNetworks] = useState<NetworkData[]>([]);
+    const [selectedNetworkData, setSelectedNetworkData] =
+        useState<NetworkData>(getDefaultNetworkData());
     const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
     const [deleteNetworkId, setDeleteNetworkId] = useState<number>(0);
+
     useEffect(() => {
-        chrome.storage.sync.get(
-            {
-                selectedNetwork: NetworkId.ETH_MAIN,
-            },
-            (items) => {
-                console.log("items", items)
-                setSelectedNetwork(
-                    networks.find(
-                        (network) => network.chainId === items.selectedNetwork
-                    ) || getDefaultNetwork()
+        const fetchData = async () => {
+            try {
+                const savedNetworks = await getSavedNetworks();
+                setNetworks(savedNetworks || networkDataList);
+                const items = await new Promise<{ selectedNetworkId: number }>((resolve) => {
+                    chrome.storage.sync.get(
+                        {
+                            selectedNetworkId: NetworkId.ETH_MAIN,
+                        },
+                        (result) => {
+                            resolve(result as { selectedNetworkId: number });
+                        }
+                    );
+                });
+
+                const selectedNetwork = savedNetworks?.find(
+                    (network) => network.chainId === items.selectedNetworkId
                 );
+                setSelectedNetworkData(selectedNetwork || getDefaultNetworkData());
+            } catch (error) {
+                // 处理错误
+                console.error(error);
             }
-        );
+        };
+
+        fetchData();
     }, []);
 
+    console.log('sss',selectedNetworkData)
+
+
     const handleAddNetwork = (newNetwork: NetworkData) => {
-        const maxChainId = Math.max(
-            ...networks.map((network) => network.chainId)
-        );
-        setNetworks([...networks, newNetwork]);
-        setSelectedNetwork(newNetwork);
+        const updatedNetworks = [...networks, newNetwork];
+        setNetworks(updatedNetworks);
+        saveNetworks(updatedNetworks);
+        setSelectedNetworkData(newNetwork);
+        setDefaultNetworkId(newNetwork.chainId);
     };
 
-    const handleSaveNetwork = (updatedNetwork: NetworkData) => {
+
+    const handleSaveNetwork = async (updatedNetwork: NetworkData) => {
         const updatedNetworks = networks.map((network) =>
             network.chainId === updatedNetwork.chainId ? updatedNetwork : network
         );
-        console.log("updatedNetwork对对对", updatedNetwork)
-        setSelectedNetwork(updatedNetwork);
+        console.log('updatedNetwork ')
+        console.log(updatedNetworks)
+        setSelectedNetworkData(updatedNetwork);
         setNetworks(updatedNetworks);
         saveNetworks(updatedNetworks);
-        setDefaultNetworkId(updatedNetwork.chainId);
+        await setDefaultNetworkId(updatedNetwork.chainId);
     };
 
     const handleNetworkChange = (event: SelectChangeEvent<number>) => {
         const selectedNetworkId = event.target.value;
-        setSelectedNetwork(
-            networks.find((network) => network.chainId === selectedNetworkId) ||
-            getDefaultNetwork()
+        const selectedNetwork = networks.find(
+            (network) => network.chainId === selectedNetworkId
         );
-        chrome.storage.sync.set({ selectedNetwork: selectedNetworkId });
+        setSelectedNetworkData(selectedNetwork || getDefaultNetworkData());
+        chrome.storage.sync.set({ selectedNetworkId });
     };
 
     const handleDeleteNetwork = (chainId: number) => {
@@ -92,18 +108,18 @@ const RpcSettings = () => {
         setConfirmDelete(true);
     };
 
-    const confirmedDelete = (confirmed: boolean) => {
+    const confirmedDelete = async (confirmed: boolean) => {
         if (confirmed) {
             const updatedNetworks = networks.filter(
                 (network) => network.chainId !== deleteNetworkId
             );
 
-            if (selectedNetwork.chainId === deleteNetworkId) {
-                const selectedNetwork = updatedNetworks.find(
-                    (network) => network.chainId === 1
-                ) || getDefaultNetwork();
-                setSelectedNetwork(selectedNetwork);
-                chrome.storage.sync.set({ selectedNetwork: selectedNetwork.chainId });
+            if (selectedNetworkData.chainId === deleteNetworkId) {
+                const selectedNetwork =
+                    updatedNetworks.find((network) => network.chainId === 1) ||
+                    getDefaultNetworkData();
+                setSelectedNetworkData(selectedNetwork);
+                chrome.storage.sync.set({ selectedNetworkId: selectedNetwork.chainId });
             }
 
             setNetworks(updatedNetworks);
@@ -111,7 +127,6 @@ const RpcSettings = () => {
             setConfirmDelete(false);
         }
     };
-
 
     return (
         <ThemeProvider theme={theme}>
@@ -165,7 +180,7 @@ const RpcSettings = () => {
 
                         <NetworkSelect
                             networks={networks}
-                            selectedNetwork={selectedNetwork.chainId}
+                            selectedNetwork={selectedNetworkData.chainId}
                             handleNetworkChange={handleNetworkChange}
                         />
                     </Box>
@@ -181,7 +196,7 @@ const RpcSettings = () => {
                 >
                     <NetworkFormTab
                         networks={networks}
-                        selectedNetworkData={selectedNetwork}
+                        selectedNetworkData={selectedNetworkData}
                         handleAddNetwork={handleAddNetwork}
                         handleSaveNetwork={handleSaveNetwork}
                         handleDeleteNetwork={handleDeleteNetwork}
@@ -190,8 +205,8 @@ const RpcSettings = () => {
             </Box>
             <ConfirmationDialog
                 open={confirmDelete}
-                title="Delete Network"
-                message="Are you sure you want to delete this network?"
+                title="删除网络"
+                message="确认要删除网络吗?"
                 onClose={() => setConfirmDelete(false)}
                 onConfirm={confirmedDelete}
             />
@@ -199,11 +214,10 @@ const RpcSettings = () => {
     );
 };
 
-
 const root = createRoot(document.getElementById("root")!);
 
 root.render(
     <ThemeProvider theme={theme}>
         <RpcSettings />
-    </ThemeProvider>,
+    </ThemeProvider>
 );

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Button, TextField, Box, Grid, Typography } from "@mui/material";
-import { NetworkData } from "./NetworkData";
+import {NetworkData, networkDataList, NetworkId} from "./NetworkData";
 import WaitDialog from './WaitDialog';
-import { getGasPrice } from './background';
+import {getGasPrice, checkNetworkIdExists} from './background';
+import {getDefaultNetworkData} from "./interface";
 
 interface EditNetworkFormProps {
     networks: NetworkData[];
@@ -17,7 +18,6 @@ const getDefaultNetwork = (): NetworkData => ({
     chainId: 1,
     rpcUrl: "https://example.com",
 });
-
 export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
                                                                     networks,
                                                                     selectedNetworkData,
@@ -27,12 +27,14 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
     const [selectedNetworkInfo, setSelectedNetworkInfo] = useState<NetworkData>(
         selectedNetworkData || getDefaultNetwork()
     );
-    const [selectedIndex, setSelectedIndex] = useState<number>(
-        networks.findIndex(network => network.chainId === selectedNetworkData?.chainId)
-    );
+
     const [showWaitDialog, setShowWaitDialog] = useState(false);
-    const [waitDialogSuccess, setWaitDialogSuccess] = useState(false);
+    const [waitDialogLoadingState, setWaitDialogLoadingState] = useState<"loading" | "success" | "failure">("loading");
     const [waitDialogMessage, setWaitDialogMessage] = useState('');
+
+    useEffect(() => {
+        setSelectedNetworkInfo(selectedNetworkData);
+    }, [selectedNetworkData]);
 
     const handleNetworkInfoChange = (field: keyof NetworkData) => (
         event: React.ChangeEvent<HTMLInputElement>
@@ -45,33 +47,39 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
         }
     };
 
-    const handleNetworkClick = (index: number) => {
-        setSelectedNetworkInfo(networks[index]);
-        setSelectedIndex(index);
+    const handleNetworkClick = (chainId: number) => {
+        setSelectedNetworkInfo(getNetworkInfo(chainId));
+    };
+
+    const getNetworkInfo = (chainId: number): NetworkData => {
+        const networkData = networks.find((network) => network.chainId === chainId);
+        return networkData || getDefaultNetworkData();
     };
 
     const handleSave = async () => {
         setShowWaitDialog(true);
 
+        if (checkNetworkIdExists(selectedNetworkInfo.chainId, networks)){
+            setWaitDialogLoadingState("failure");
+            setWaitDialogMessage('网络ID已存在');
+            return;
+        }
+
+
         try {
             const gasPrice = await getGasPrice(selectedNetworkInfo.chainId, selectedNetworkInfo.rpcUrl);
-            console.log('gasPrice',gasPrice)
-            console.log('gasPrice type',typeof gasPrice)
 
-            if (gasPrice !=0) {
-                setWaitDialogSuccess(true);
+            if (gasPrice !== 0) {
+                setWaitDialogLoadingState("success");
                 setWaitDialogMessage('保存成功');
                 handleSaveNetwork(selectedNetworkInfo);
             } else {
-                setWaitDialogSuccess(false);
+                setWaitDialogLoadingState("failure");
                 setWaitDialogMessage('连接网络失败');
             }
         } catch (error) {
-            console.log(222)
-            setWaitDialogSuccess(false);
+            setWaitDialogLoadingState("failure");
             setWaitDialogMessage('连接网络失败');
-        } finally {
-            console.log(111)
         }
     };
 
@@ -91,13 +99,13 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
             sx={{ flexWrap: "wrap" }}
         >
             <Grid item xs={12} sm={6}>
-                {networks.map((network, index) => (
+                {networks.map((network) => (
                     <Typography
                         key={network.chainId}
                         variant="subtitle1"
                         component="div"
-                        className={`network-name ${index === selectedIndex ? "selected" : ""}`}
-                        onClick={() => handleNetworkClick(index)}
+                        className={`network-name ${network.chainId === selectedNetworkInfo.chainId ? "selected" : ""}`}
+                        onClick={() => handleNetworkClick(network.chainId)}
                         sx={{
                             borderRadius: "16px",
                             m: "5%",
@@ -130,6 +138,7 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
                             fullWidth
                             sx={{ mb: 1 }}
                             onChange={handleNetworkInfoChange("chainId")}
+                            inputProps={{ type: 'number', step: 1 }}
                         />
                         <TextField
                             label="RPC URL"
@@ -152,13 +161,13 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
                                         color="error"
                                         onClick={handleDelete}
                                     >
-                                        Delete
+                                        删除
                                     </Button>
                                 </Grid>
                             )}
                             <Grid item>
                                 <Button variant="outlined" onClick={handleSave}>
-                                    Save
+                                    保存
                                 </Button>
                             </Grid>
                         </Grid>
@@ -168,9 +177,8 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
             <WaitDialog
                 open={showWaitDialog}
                 onClose={handleWaitDialogClose}
-                isLoading={!waitDialogSuccess}
-                isSuccess={waitDialogSuccess}
-                failureMessage={waitDialogMessage}
+                loadingState={waitDialogLoadingState}
+                message={waitDialogMessage}
             />
         </Grid>
     );

@@ -39,13 +39,12 @@ const Network: React.FC<NetworkProps> = ({ name, gasPrice, isSelected, onClick }
 };
 
 const Popup: React.FC = () => {
-    const [selectedNetwork, setSelectedNetwork] = useState<number>(NetworkId.ETH_MAIN);
+    const [selectedNetworkId, setSelectedNetworkId] = useState<number>(NetworkId.ETH_MAIN);
     const [networks, setNetworks] = useState<NetworkData[]>([]);
 
     useEffect(() => {
         const loadData = async () => {
             const savedNetworks = await getSavedNetworks(true);
-            console.log("getSavedNetworks", savedNetworks);
 
             const updatedNetworks: NetworkData[] = [];
 
@@ -65,11 +64,12 @@ const Popup: React.FC = () => {
 
         chrome.storage.sync.get(
             {
-                networkDataList: networkDataList,
-                selectedNetwork: NetworkId.ETH_MAIN,
+                networks: networkDataList,
+                selectedNetworkId: NetworkId.ETH_MAIN,
             },
             (items) => {
-                setSelectedNetwork(items.selectedNetwork);
+                console.log(items.selectedNetworkId)
+                setSelectedNetworkId(items.selectedNetworkId);
             }
         );
 
@@ -86,13 +86,13 @@ const Popup: React.FC = () => {
         };
 
         if (networks.every((network) => network.gasPrice !== undefined)) {
-            handleBadgeUpdate(selectedNetwork);
+            handleBadgeUpdate(selectedNetworkId);
         }
-    }, [networks, selectedNetwork]);
+    }, [networks, selectedNetworkId]);
 
     const handleNetworkClick = (networkId: number) => {
-        setSelectedNetwork(networkId);
-        chrome.storage.sync.set({ selectedNetwork: networkId });
+        setSelectedNetworkId(networkId);
+        chrome.storage.sync.set({ selectedNetworkId: networkId });
         handleBadgeUpdate(networkId);
     };
 
@@ -181,7 +181,7 @@ const Popup: React.FC = () => {
                                 <Network
                                     name={network.name}
                                     gasPrice={network.gasPrice}
-                                    isSelected={selectedNetwork === network.chainId}
+                                    isSelected={selectedNetworkId === network.chainId}
                                     onClick={() => handleNetworkClick(network.chainId)}
                                 />
                             </Box>

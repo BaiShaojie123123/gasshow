@@ -1,8 +1,8 @@
 import React from 'react';
-import { Tab, Tabs, Box } from "@mui/material";
-import { NetworkData } from "./NetworkData";
-import { AddNetworkForm } from "./AddNetworkForm";
-import { EditNetworkForm } from "./EditNetworkForm";
+import {Tab, Tabs, Box} from "@mui/material";
+import {NetworkData} from "./NetworkData";
+import {AddNetworkForm} from "./AddNetworkForm";
+import {EditNetworkForm} from "./EditNetworkForm";
 
 interface NetworkFormTabProps {
     networks: NetworkData[];
@@ -28,8 +28,8 @@ export const NetworkFormTab: React.FC<NetworkFormTabProps> = ({
     return (
         <>
             <Tabs value={selectedTab} onChange={handleTabChange}>
-                <Tab label="Edit Network" />
-                <Tab label="Add Network" />
+                <Tab label="修改网络"/>
+                <Tab label="添加网络"/>
             </Tabs>
             {selectedTab === 0 && (
                 <EditNetworkForm
@@ -40,7 +40,9 @@ export const NetworkFormTab: React.FC<NetworkFormTabProps> = ({
                 />
             )}
             {selectedTab === 1 && (
-                <AddNetworkForm handleAddNetwork={handleAddNetwork} />
+                <AddNetworkForm handleAddNetwork={handleAddNetwork}
+                                networks={networks}
+                />
             )}
         </>
     );
