@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Box, Grid, Typography, Button, Card } from "@mui/material";
 import { NetworkData, networkDataList, NetworkId } from "./NetworkData";
 import { formatPrice, getGasPrice, getSavedNetworks } from "./background";
-import { goHome } from "./GoTo";
+import {goHome, goSetting} from "./GoTo";
 
 interface NetworkProps {
     name: string;
@@ -42,44 +42,24 @@ const Popup: React.FC = () => {
     const [selectedNetworkId, setSelectedNetworkId] = useState<number>(NetworkId.ETH_MAIN);
     const [networks, setNetworks] = useState<NetworkData[]>([]);
 
-    useEffect(() => {
-        // todo 有问题
-        const handleMessage = (message: any) => {
-            console.log("Received message:", message);
-            if (message.type === "networkDataList") {
-                console.log("Received networkDataList:", message.data);
-                setNetworks(message.data);
-            }
-        };
-
-        chrome.runtime.onMessage.addListener(handleMessage);
-
-        return () => {
-            chrome.runtime.onMessage.removeListener(handleMessage);
-        };
-    }, []);
-
 
 
     useEffect(() => {
         const loadData = async () => {
             const savedNetworks = await getSavedNetworks(true);
 
-            const updatedNetworks: NetworkData[] = [];
-
-            await Promise.all(
+            const updatedNetworks = await Promise.all(
                 savedNetworks.map(async (network) => {
                     const gasPrice = await getGasPrice(network.chainId, network.rpcUrl);
-                    updatedNetworks.push({ ...network, gasPrice });
+                    return { ...network, gasPrice };
                 })
             );
 
             // 对 updatedNetworks 数组按照 chainId 进行升序排序
             updatedNetworks.sort((a, b) => a.chainId - b.chainId);
 
-            setNetworks(updatedNetworks); // 在所有getGasPrice请求完成后再更新状态
+            setNetworks(updatedNetworks); // 在所有 getGasPrice 请求完成后再更新状态
         };
-
 
         chrome.storage.sync.get(
             {
@@ -87,13 +67,21 @@ const Popup: React.FC = () => {
                 selectedNetworkId: NetworkId.ETH_MAIN,
             },
             (items) => {
-                console.log(items.selectedNetworkId)
                 setSelectedNetworkId(items.selectedNetworkId);
             }
         );
 
         loadData();
+
+        // 设置定时器，每5秒加载一次数据
+        const timer = setInterval(loadData, 5000);
+
+        // 返回一个清理函数，在组件卸载时清除定时器
+        return () => {
+            clearInterval(timer);
+        };
     }, []);
+
 
     useEffect(() => {
         const handleBadgeUpdate = (networkId: number) => {
@@ -126,7 +114,7 @@ const Popup: React.FC = () => {
 
 
     const handleSettingsClick = () => {
-        chrome.tabs.create({ url: chrome.runtime.getURL("rpc-settings.html") });
+        goSetting();
     };
 
 
@@ -138,8 +126,10 @@ const Popup: React.FC = () => {
             width="100%"
             height="100%"
             style={{
-                maxWidth: "800px",
+                maxWidth: "600px",
+                minWidth: "600px",
                 margin: "auto",
+                padding: "2%",
             }}
         >
             <Card
@@ -150,7 +140,6 @@ const Popup: React.FC = () => {
                     width: "100%",
                     backgroundColor: "#fff",
                     boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-                    px:5
                 }}
             >
                 <Box display="flex" justifyContent="space-between" alignItems="center">

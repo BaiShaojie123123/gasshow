@@ -70,7 +70,6 @@ const RpcSettings = () => {
         fetchData();
     }, []);
 
-    console.log('sss',selectedNetworkData)
 
 
     const handleAddNetwork = (newNetwork: NetworkData) => {
@@ -86,8 +85,6 @@ const RpcSettings = () => {
         const updatedNetworks = networks.map((network) =>
             network.chainId === updatedNetwork.chainId ? updatedNetwork : network
         );
-        console.log('updatedNetwork ')
-        console.log(updatedNetworks)
         setSelectedNetworkData(updatedNetwork);
         setNetworks(updatedNetworks);
         saveNetworks(updatedNetworks);
@@ -137,18 +134,20 @@ const RpcSettings = () => {
                 width="100%"
                 height="100%"
                 style={{
-                    maxWidth: "800px",
+                    maxWidth: "600px",
+                    minWidth: "600px",
                     margin: "auto",
+                    padding: "2%",
                 }}
             >
                 <Card
-                    elevation={5}
+                    variant="outlined"
                     sx={{
                         p: 2,
                         borderRadius: "16px",
                         width: "100%",
                         backgroundColor: "#fff",
-                        px: 5,
+                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
                     }}
                 >
                     <Box
