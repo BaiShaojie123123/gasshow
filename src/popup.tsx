@@ -43,6 +43,25 @@ const Popup: React.FC = () => {
     const [networks, setNetworks] = useState<NetworkData[]>([]);
 
     useEffect(() => {
+        // todo 有问题
+        const handleMessage = (message: any) => {
+            console.log("Received message:", message);
+            if (message.type === "networkDataList") {
+                console.log("Received networkDataList:", message.data);
+                setNetworks(message.data);
+            }
+        };
+
+        chrome.runtime.onMessage.addListener(handleMessage);
+
+        return () => {
+            chrome.runtime.onMessage.removeListener(handleMessage);
+        };
+    }, []);
+
+
+
+    useEffect(() => {
         const loadData = async () => {
             const savedNetworks = await getSavedNetworks(true);
 

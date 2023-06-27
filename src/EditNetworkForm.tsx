@@ -59,11 +59,6 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
     const handleSave = async () => {
         setShowWaitDialog(true);
 
-        if (checkNetworkIdExists(selectedNetworkInfo.chainId, networks)){
-            setWaitDialogLoadingState("failure");
-            setWaitDialogMessage('网络ID已存在');
-            return;
-        }
 
 
         try {
