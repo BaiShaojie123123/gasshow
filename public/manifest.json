@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Gas Show",
-  "description": "Chrome Extension, TypeScript, Visual Studio Code",
-  "version": "1.0",
+  "description": "Blockchain multi-chain real-time gas prices",
+  "version": "2.0",
 
   "action": {
     "default_icon": {
