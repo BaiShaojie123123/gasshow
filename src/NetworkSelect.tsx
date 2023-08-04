@@ -10,6 +10,9 @@ interface NetworkSelectProps {
 }
 
 const NetworkSelect: React.FC<NetworkSelectProps> = ({ networks, selectedNetwork, handleNetworkChange }) => {
+    if (!networks || networks.length === 0) {
+        return null; // 或者你可以返回一个备选的渲染结果，例如 <div>No Networks Available</div>
+    }
     return (
         <FormControl
             sx={{

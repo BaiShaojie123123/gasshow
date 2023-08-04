@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Box, Grid, Typography, Button, Card } from "@mui/material";
 import { NetworkData, networkDataList, NetworkId } from "./NetworkData";
-import { formatPrice, getGasPrice, getSavedNetworks } from "./background";
+import { setBadgeText, getGasPrice, getSavedNetworks } from "./background";
 import {goHome, goSetting} from "./GoTo";
+
+
 
 interface NetworkProps {
     name: string;
@@ -48,12 +50,19 @@ const Popup: React.FC = () => {
         const loadData = async () => {
             const savedNetworks = await getSavedNetworks(true);
 
-            const updatedNetworks = await Promise.all(
-                savedNetworks.map(async (network) => {
-                    const gasPrice = await getGasPrice(network.chainId, network.rpcUrl);
-                    return { ...network, gasPrice };
-                })
+            // 创建一个 Promise 数组来并行获取每个网络的 gasPrice
+            const gasPricePromises = savedNetworks.map((network) =>
+                getGasPrice(network.chainId, network.rpcUrl)
             );
+
+            // 使用 Promise.all 等待所有 gasPrice 请求完成
+            const gasPrices = await Promise.all(gasPricePromises);
+
+            // 将每个网络的 gasPrice 合并到对应的网络对象中
+            const updatedNetworks = savedNetworks.map((network, index) => ({
+                ...network,
+                gasPrice: gasPrices[index],
+            }));
 
             // 对 updatedNetworks 数组按照 chainId 进行升序排序
             updatedNetworks.sort((a, b) => a.chainId - b.chainId);
@@ -83,19 +92,18 @@ const Popup: React.FC = () => {
     }, []);
 
 
-    useEffect(() => {
-        const handleBadgeUpdate = (networkId: number) => {
-            const selectedNetworkData = networks.find((network) => network.chainId === networkId);
-            if (selectedNetworkData && selectedNetworkData.gasPrice !== undefined) {
-                const gasPrice = selectedNetworkData.gasPrice;
-                chrome.action.setBadgeText({ text: formatPrice(gasPrice) });
-            }
-        };
 
-        if (networks.every((network) => network.gasPrice !== undefined)) {
-            handleBadgeUpdate(selectedNetworkId);
-        }
-    }, [networks, selectedNetworkId]);
+    // useEffect(() => {
+    //     // const handleBadgeUpdate = (networkId: number) => {
+    //     //     const selectedNetworkData = networks.find((network) => network.chainId === networkId);
+    //     //     if (selectedNetworkData && selectedNetworkData.gasPrice !== undefined) {
+    //     //         setBadgeText(selectedNetworkData.gasPrice);
+    //     //     }
+    //     // };
+    //     if (networks.every((network) => network.gasPrice !== undefined)) {
+    //         handleBadgeUpdate(selectedNetworkId);
+    //     }
+    // }, [networks, selectedNetworkId]);
 
     const handleNetworkClick = (networkId: number) => {
         setSelectedNetworkId(networkId);
@@ -106,9 +114,7 @@ const Popup: React.FC = () => {
     const handleBadgeUpdate = (networkId: number) => {
         const selectedNetworkData = networks.find((network) => network.chainId === networkId);
         if (selectedNetworkData) {
-            const gasPrice = selectedNetworkData.gasPrice;
-            const badgeText = formatPrice(gasPrice);
-            chrome.action.setBadgeText({ text: badgeText });
+            setBadgeText(selectedNetworkData.gasPrice)
         }
     };
 

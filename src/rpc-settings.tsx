@@ -35,10 +35,14 @@ const theme = createTheme({
 });
 
 const RpcSettings = () => {
+    // 这是所有网络信息
     const [networks, setNetworks] = useState<NetworkData[]>([]);
+    // 这是已经选择的网络信息
     const [selectedNetworkData, setSelectedNetworkData] =
-        useState<NetworkData>(getDefaultNetworkData());
+        useState<NetworkData|undefined>(undefined);
+    // 这是是否显示删除网络的确认对话框
     const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+    // 这是要删除的网络的 ID
     const [deleteNetworkId, setDeleteNetworkId] = useState<number>(0);
 
     useEffect(() => {
@@ -60,7 +64,7 @@ const RpcSettings = () => {
                 const selectedNetwork = savedNetworks?.find(
                     (network) => network.chainId === items.selectedNetworkId
                 );
-                setSelectedNetworkData(selectedNetwork || getDefaultNetworkData());
+                setSelectedNetworkData(selectedNetwork );
             } catch (error) {
                 // 处理错误
                 console.error(error);
@@ -69,8 +73,9 @@ const RpcSettings = () => {
 
         fetchData();
     }, []);
-
-
+    if (networks.length === 0 || selectedNetworkData===undefined) {
+        return null;
+    }
 
     const handleAddNetwork = (newNetwork: NetworkData) => {
         const updatedNetworks = [...networks, newNetwork];

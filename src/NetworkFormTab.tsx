@@ -28,7 +28,7 @@ export const NetworkFormTab: React.FC<NetworkFormTabProps> = ({
     return (
         <>
             <Tabs value={selectedTab} onChange={handleTabChange}>
-                <Tab label="修改网络"/>
+                <Tab label="修改网络" />
                 <Tab label="添加网络"/>
             </Tabs>
             {selectedTab === 0 && (

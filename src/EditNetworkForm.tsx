@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import { Button, TextField, Box, Grid, Typography } from "@mui/material";
-import {NetworkData, networkDataList, NetworkId} from "./NetworkData";
+import {NetworkData} from "./NetworkData";
 import WaitDialog from './WaitDialog';
-import {getGasPrice, checkNetworkIdExists} from './background';
+import {getGasPrice} from './background';
 import {getDefaultNetworkData} from "./interface";
 
 interface EditNetworkFormProps {
@@ -47,6 +47,7 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
         }
     };
 
+    // 点击后更新已选择的网络,左侧背景色变化,右侧显示网络信息
     const handleNetworkClick = (chainId: number) => {
         setSelectedNetworkInfo(getNetworkInfo(chainId));
     };

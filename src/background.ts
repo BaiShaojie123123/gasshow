@@ -1,9 +1,15 @@
-import Web3 from 'web3';
-import {networkDataList, NetworkData, NetworkId} from './NetworkData';
+import {NetworkData, networkDataList, NetworkId} from './NetworkData';
+
+chrome.runtime.onInstalled.addListener(() => {
+    // 打开popup页面
+    chrome.tabs.create({url: chrome.runtime.getURL("popup.html")});
+});
+
 
 export function formatPrice(price: number | undefined): string {
     if (price !== undefined && price < 1) {
-        return price.toString().substring(0, 5);
+        // 如果小于0则 截取小数点后两位 4代表截取的长度 0.00 共4位
+        return price.toString().substring(0, 4);
     } else if (price !== undefined) {
         const parts = price.toString().split(".");
         if (parts.length > 0) {
@@ -53,13 +59,13 @@ export async function getGasPrice(netId: number, rpcUrl: string): Promise<number
         // 处理返回的数据
         const data = await response.json();
         const gasPriceWei = parseInt(data.result, 16);
-        // 16进制
-        const gasPriceGwei = (gasPriceWei / 1e9).toFixed(3);
+        // 16进制转化为Gwei = 1e9 toFixed(6) 保留6位小数
+        const gasPriceGwei = (gasPriceWei / 1e9).toFixed(8);
         const price = parseFloat(gasPriceGwei);
 
         const result = await getFromChromeStorage('selectedNetworkId');
         if (result.selectedNetworkId === netId) {
-            chrome.action.setBadgeText({ text: formatPrice(price) });
+            setBadgeText(price);
         }
 
         return price;
@@ -127,9 +133,12 @@ const handleBadgeUpdate = (networkId: number) => {
         (network) => network.chainId === networkId
     );
     if (selectedNetworkData) {
-        const gasPrice = selectedNetworkData.gasPrice;
-        chrome.action.setBadgeText({text: formatPrice(gasPrice)});
+        setBadgeText(selectedNetworkData.gasPrice);
     }
+};
+
+export const setBadgeText = (gasPrice: number | undefined) => {
+    chrome.action.setBadgeText({text: formatPrice(gasPrice)});
 };
 
 // ...
@@ -172,7 +181,7 @@ export const saveNetworks = async (networks: NetworkData[]): Promise<void> => {
     saveNetworkDataList(networks);
 };
 
-export const updateGasPrices =  async () => {
+export const updateGasPrices = async () => {
     // 设置 10-100 的随机数
     const result = await getSavedNetworks();
     const selectedNetworkId = await getFromChromeStorage('selectedNetworkId');
@@ -182,18 +191,13 @@ export const updateGasPrices =  async () => {
             if (network.chainId !== selectedNetworkId.selectedNetworkId) {
                 return network;
             }
-            const updatedGasPrice = await getGasPrice(network.chainId, network.rpcUrl);
-            network.gasPrice = updatedGasPrice;
+            network.gasPrice = await getGasPrice(network.chainId, network.rpcUrl);
             return network
         })
     );
     saveNetworkDataList(updatedNetworks);
 
 };
-chrome.runtime.onInstalled.addListener(() => {
-    // 打开popup页面
-    chrome.tabs.create({ url: chrome.runtime.getURL("popup.html") });
-});
 
 // 初始化
 const init = async () => {
