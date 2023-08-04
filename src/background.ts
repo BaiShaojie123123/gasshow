@@ -60,7 +60,7 @@ export async function getGasPrice(netId: number, rpcUrl: string): Promise<number
         const data = await response.json();
         const gasPriceWei = parseInt(data.result, 16);
         // 16进制转化为Gwei = 1e9 toFixed(6) 保留6位小数
-        const gasPriceGwei = (gasPriceWei / 1e9).toFixed(8);
+        const gasPriceGwei = (gasPriceWei / 1e9).toFixed(6);
         const price = parseFloat(gasPriceGwei);
 
         const result = await getFromChromeStorage('selectedNetworkId');
