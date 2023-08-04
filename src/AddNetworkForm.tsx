@@ -1,15 +1,16 @@
 import React, {useState} from 'react';
-import { NetworkData } from "./NetworkData";
+import {NetworkData} from "./NetworkData";
 import {checkNetworkIdExists, getGasPrice} from "./background";
 import {getDefaultNetworkData} from "./interface";
 import Grid from '@mui/material/Grid';
 import WaitDialog from "./WaitDialog";
-import {Button, TextField, Typography} from '@mui/material';
+import {Button, TextField} from '@mui/material';
 
 interface AddNetworkFormProps {
     handleAddNetwork: (newNetwork: NetworkData) => void;
     networks: NetworkData[];
 }
+
 export const AddNetworkForm: React.FC<AddNetworkFormProps> = ({
                                                                   handleAddNetwork,
                                                                   networks,
@@ -30,7 +31,7 @@ export const AddNetworkForm: React.FC<AddNetworkFormProps> = ({
 
     const handleSave = async () => {
         setShowWaitDialog(true);
-        if (checkNetworkIdExists(newNetworkInfo.chainId, networks)){
+        if (checkNetworkIdExists(newNetworkInfo.chainId, networks)) {
             setWaitDialogLoadingState("failure");
             setWaitDialogMessage('网络ID已存在');
             return;
@@ -62,7 +63,7 @@ export const AddNetworkForm: React.FC<AddNetworkFormProps> = ({
             container
             spacing={2}
             justifyContent="space-evenly"
-            sx={{ flexWrap: "wrap" ,p:4}}
+            sx={{flexWrap: "wrap", p: 4}}
         >
 
             <Grid item xs={12} sm={6}>
@@ -71,21 +72,21 @@ export const AddNetworkForm: React.FC<AddNetworkFormProps> = ({
                         label="Name"
                         value={newNetworkInfo.name}
                         fullWidth
-                        sx={{ mb: 1 }}
+                        sx={{mb: 1}}
                         onChange={handleNetworkInfoChange("name")}
                     />
                     <TextField
                         label="Chain ID"
                         value={newNetworkInfo.chainId.toString()}
                         fullWidth
-                        sx={{ mb: 1 }}
+                        sx={{mb: 1}}
                         onChange={handleNetworkInfoChange("chainId")}
                     />
                     <TextField
                         label="RPC URL"
                         value={newNetworkInfo.rpcUrl}
                         fullWidth
-                        sx={{ mb: 1 }}
+                        sx={{mb: 1}}
                         onChange={handleNetworkInfoChange("rpcUrl")}
                     />
                     <Grid
@@ -93,7 +94,7 @@ export const AddNetworkForm: React.FC<AddNetworkFormProps> = ({
                         spacing={2}
                         justifyContent="flex-end"
                         alignItems="center"
-                        sx={{ mt: 2 }}
+                        sx={{mt: 2}}
                     >
                         <Grid item>
                             <Button variant="outlined" onClick={handleSave}>

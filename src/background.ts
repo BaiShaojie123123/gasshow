@@ -196,7 +196,6 @@ export const updateGasPrices = async () => {
         })
     );
     saveNetworkDataList(updatedNetworks);
-
 };
 
 // 初始化

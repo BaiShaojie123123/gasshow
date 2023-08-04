@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { createRoot } from "react-dom/client";
-import { Box, Grid, Typography, Button, Card } from "@mui/material";
-import { NetworkData, networkDataList, NetworkId } from "./NetworkData";
-import { setBadgeText, getGasPrice, getSavedNetworks } from "./background";
+import React, {useEffect, useState} from "react";
+import {createRoot} from "react-dom/client";
+import {Box, Button, Card, Grid, Typography} from "@mui/material";
+import {NetworkData, networkDataList, NetworkId} from "./NetworkData";
+import {getGasPrice, getSavedNetworks, setBadgeText} from "./background";
 import {goHome, goSetting} from "./GoTo";
-
 
 
 interface NetworkProps {
@@ -14,7 +13,7 @@ interface NetworkProps {
     onClick: () => void;
 }
 
-const Network: React.FC<NetworkProps> = ({ name, gasPrice, isSelected, onClick }) => {
+const Network: React.FC<NetworkProps> = ({name, gasPrice, isSelected, onClick}) => {
     return (
         <Box
             borderRadius="8px"
@@ -30,10 +29,10 @@ const Network: React.FC<NetworkProps> = ({ name, gasPrice, isSelected, onClick }
                 color: "black",
             }}
         >
-            <Typography variant="body2" sx={{ fontSize: "14px" }}>
+            <Typography variant="body2" sx={{fontSize: "14px"}}>
                 {name}
             </Typography>
-            <Typography variant="body2" sx={{ fontSize: "14px" }}>
+            <Typography variant="body2" sx={{fontSize: "14px"}}>
                 {gasPrice} Gwei
             </Typography>
         </Box>
@@ -43,7 +42,6 @@ const Network: React.FC<NetworkProps> = ({ name, gasPrice, isSelected, onClick }
 const Popup: React.FC = () => {
     const [selectedNetworkId, setSelectedNetworkId] = useState<number>(NetworkId.ETH_MAIN);
     const [networks, setNetworks] = useState<NetworkData[]>([]);
-
 
 
     useEffect(() => {
@@ -92,7 +90,6 @@ const Popup: React.FC = () => {
     }, []);
 
 
-
     // useEffect(() => {
     //     // const handleBadgeUpdate = (networkId: number) => {
     //     //     const selectedNetworkData = networks.find((network) => network.chainId === networkId);
@@ -107,7 +104,7 @@ const Popup: React.FC = () => {
 
     const handleNetworkClick = (networkId: number) => {
         setSelectedNetworkId(networkId);
-        chrome.storage.sync.set({ selectedNetworkId: networkId });
+        chrome.storage.sync.set({selectedNetworkId: networkId});
         handleBadgeUpdate(networkId);
     };
 
@@ -164,7 +161,7 @@ const Popup: React.FC = () => {
                                 marginRight: "8px",
                             }}
                         />
-                        <Typography variant="h6" sx={{ fontSize: "16px" }}>
+                        <Typography variant="h6" sx={{fontSize: "16px"}}>
                             Gas Show
                         </Typography>
                     </Box>
@@ -188,7 +185,7 @@ const Popup: React.FC = () => {
                     overflowX: "auto",
                 }}
             >
-                <Grid container spacing={2} justifyContent="space-evenly" sx={{ flexWrap: "wrap" }}>
+                <Grid container spacing={2} justifyContent="space-evenly" sx={{flexWrap: "wrap"}}>
                     {networks.map((network) => (
                         <Grid item key={network.chainId}>
                             <Box key={network.chainId} my={1}>
@@ -211,6 +208,6 @@ const root = createRoot(document.getElementById("root")!);
 
 root.render(
     <React.StrictMode>
-        <Popup />
+        <Popup/>
     </React.StrictMode>
 );

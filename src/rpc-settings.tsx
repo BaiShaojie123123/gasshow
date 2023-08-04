@@ -1,29 +1,14 @@
-import React, { useEffect, useState } from "react";
-import {
-    Box,
-    Card,
-    createTheme,
-    ThemeProvider,
-    Typography,
-} from "@mui/material";
-import { blue } from "@mui/material/colors";
-import {
-    NetworkData,
-    networkDataList,
-    NetworkId,
-
-} from "./NetworkData";
-import {
-    getSavedNetworks,
-    saveNetworks,
-    setDefaultNetworkId,
-} from "./background";
+import React, {useEffect, useState} from "react";
+import {Box, Card, createTheme, ThemeProvider, Typography,} from "@mui/material";
+import {blue} from "@mui/material/colors";
+import {NetworkData, networkDataList, NetworkId,} from "./NetworkData";
+import {getSavedNetworks, saveNetworks, setDefaultNetworkId,} from "./background";
 import ConfirmationDialog from "./ConfirmationDialog";
 import NetworkSelect from "./NetworkSelect";
-import { NetworkFormTab } from "./NetworkFormTab";
-import { SelectChangeEvent } from "@mui/material/Select";
-import { createRoot } from "react-dom/client";
-import { goHome } from "./GoTo";
+import {NetworkFormTab} from "./NetworkFormTab";
+import {SelectChangeEvent} from "@mui/material/Select";
+import {createRoot} from "react-dom/client";
+import {goHome} from "./GoTo";
 import {getDefaultNetworkData} from "./interface";
 
 const theme = createTheme({
@@ -39,7 +24,7 @@ const RpcSettings = () => {
     const [networks, setNetworks] = useState<NetworkData[]>([]);
     // 这是已经选择的网络信息
     const [selectedNetworkData, setSelectedNetworkData] =
-        useState<NetworkData|undefined>(undefined);
+        useState<NetworkData | undefined>(undefined);
     // 这是是否显示删除网络的确认对话框
     const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
     // 这是要删除的网络的 ID
@@ -64,7 +49,7 @@ const RpcSettings = () => {
                 const selectedNetwork = savedNetworks?.find(
                     (network) => network.chainId === items.selectedNetworkId
                 );
-                setSelectedNetworkData(selectedNetwork );
+                setSelectedNetworkData(selectedNetwork);
             } catch (error) {
                 // 处理错误
                 console.error(error);
@@ -73,7 +58,7 @@ const RpcSettings = () => {
 
         fetchData();
     }, []);
-    if (networks.length === 0 || selectedNetworkData===undefined) {
+    if (networks.length === 0 || selectedNetworkData === undefined) {
         return null;
     }
 
@@ -102,7 +87,7 @@ const RpcSettings = () => {
             (network) => network.chainId === selectedNetworkId
         );
         setSelectedNetworkData(selectedNetwork || getDefaultNetworkData());
-        chrome.storage.sync.set({ selectedNetworkId });
+        chrome.storage.sync.set({selectedNetworkId});
     };
 
     const handleDeleteNetwork = (chainId: number) => {
@@ -121,7 +106,7 @@ const RpcSettings = () => {
                     updatedNetworks.find((network) => network.chainId === 1) ||
                     getDefaultNetworkData();
                 setSelectedNetworkData(selectedNetwork);
-                chrome.storage.sync.set({ selectedNetworkId: selectedNetwork.chainId });
+                chrome.storage.sync.set({selectedNetworkId: selectedNetwork.chainId});
             }
 
             setNetworks(updatedNetworks);
@@ -177,7 +162,7 @@ const RpcSettings = () => {
                                     marginRight: "8px",
                                 }}
                             />
-                            <Typography variant="h6" sx={{ fontSize: "16px" }}>
+                            <Typography variant="h6" sx={{fontSize: "16px"}}>
                                 Gas Show
                             </Typography>
                         </Box>
@@ -222,6 +207,6 @@ const root = createRoot(document.getElementById("root")!);
 
 root.render(
     <ThemeProvider theme={theme}>
-        <RpcSettings />
+        <RpcSettings/>
     </ThemeProvider>
 );

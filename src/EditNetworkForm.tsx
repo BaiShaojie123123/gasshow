@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { Button, TextField, Box, Grid, Typography } from "@mui/material";
+import {Button, Grid, TextField, Typography} from "@mui/material";
 import {NetworkData} from "./NetworkData";
 import WaitDialog from './WaitDialog';
 import {getGasPrice} from './background';
@@ -61,7 +61,6 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
         setShowWaitDialog(true);
 
 
-
         try {
             const gasPrice = await getGasPrice(selectedNetworkInfo.chainId, selectedNetworkInfo.rpcUrl);
 
@@ -92,7 +91,7 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
             container
             spacing={2}
             justifyContent="space-evenly"
-            sx={{ flexWrap: "wrap" }}
+            sx={{flexWrap: "wrap"}}
         >
             <Grid item xs={12} sm={6}>
                 {networks.map((network) => (
@@ -125,22 +124,22 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
                             label="Name"
                             value={selectedNetworkInfo.name}
                             fullWidth
-                            sx={{ mb: 1 }}
+                            sx={{mb: 1}}
                             onChange={handleNetworkInfoChange("name")}
                         />
                         <TextField
                             label="Chain ID"
                             value={selectedNetworkInfo.chainId.toString()}
                             fullWidth
-                            sx={{ mb: 1 }}
+                            sx={{mb: 1}}
                             onChange={handleNetworkInfoChange("chainId")}
-                            inputProps={{ type: 'number', step: 1 }}
+                            inputProps={{type: 'number', step: 1}}
                         />
                         <TextField
                             label="RPC URL"
                             value={selectedNetworkInfo.rpcUrl}
                             fullWidth
-                            sx={{ mb: 1 }}
+                            sx={{mb: 1}}
                             onChange={handleNetworkInfoChange("rpcUrl")}
                         />
                         <Grid
@@ -148,7 +147,7 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
                             spacing={2}
                             justifyContent="flex-end"
                             alignItems="center"
-                            sx={{ mt: 2 }}
+                            sx={{mt: 2}}
                         >
                             {selectedNetworkInfo.chainId !== 1 && (
                                 <Grid item>

@@ -14,10 +14,10 @@ export const NETWORK_NAMES = {
     GOERLI: 'Goerli',
     POLYGON: 'Polygon',
     ARBITRUM: 'Arbitrum One',
-    BASE_GOERLI:'Base Goerli',
-    NAME_NETWORK_FANTOM_OPERA : 'Fantom Opera',
-    Name_Network_Avalanche_Network_C_Chain : 'Avalanche C-Chain',
-    LINEA_GOERLI_TEST_NETWORK : 'linea goerli',
+    BASE_GOERLI: 'Base Goerli',
+    NAME_NETWORK_FANTOM_OPERA: 'Fantom Opera',
+    Name_Network_Avalanche_Network_C_Chain: 'Avalanche C-Chain',
+    LINEA_GOERLI_TEST_NETWORK: 'linea goerli',
 };
 
 export const NetworkId = {
@@ -29,9 +29,9 @@ export const NetworkId = {
     POLYGON: 137,
     ARBITRUM: 42161,
     BASE_GOERLI: 84531,
-    Avalanche_Network_C_Chain : 43114,
-    FANTOM_OPERA : 250,
-    LINEA_GOERLI_TEST_NETWORK : 59140,
+    Avalanche_Network_C_Chain: 43114,
+    FANTOM_OPERA: 250,
+    LINEA_GOERLI_TEST_NETWORK: 59140,
 }
 
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Tab, Tabs, Box} from "@mui/material";
+import {Tab, Tabs} from "@mui/material";
 import {NetworkData} from "./NetworkData";
 import {AddNetworkForm} from "./AddNetworkForm";
 import {EditNetworkForm} from "./EditNetworkForm";
@@ -28,7 +28,7 @@ export const NetworkFormTab: React.FC<NetworkFormTabProps> = ({
     return (
         <>
             <Tabs value={selectedTab} onChange={handleTabChange}>
-                <Tab label="修改网络" />
+                <Tab label="修改网络"/>
                 <Tab label="添加网络"/>
             </Tabs>
             {selectedTab === 0 && (

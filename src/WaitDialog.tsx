@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, CircularProgress, Typography, Grid, IconButton } from '@mui/material';
-import { CheckCircle as CheckCircleIcon, Cancel as CancelIcon } from '@mui/icons-material';
+import React, {useEffect, useState} from 'react';
+import {CircularProgress, Dialog, DialogContent, DialogTitle, Grid, IconButton, Typography} from '@mui/material';
+import {Cancel as CancelIcon, CheckCircle as CheckCircleIcon} from '@mui/icons-material';
 
 interface WaitDialogProps {
     open: boolean;
@@ -9,7 +9,7 @@ interface WaitDialogProps {
     message: string;
 }
 
-const WaitDialog: React.FC<WaitDialogProps> = ({ open, onClose, loadingState, message }) => {
+const WaitDialog: React.FC<WaitDialogProps> = ({open, onClose, loadingState, message}) => {
     const [internalOpen, setInternalOpen] = useState(false);
 
     useEffect(() => {
@@ -21,14 +21,14 @@ const WaitDialog: React.FC<WaitDialogProps> = ({ open, onClose, loadingState, me
             case "loading":
                 return (
                     <Grid item>
-                        <CircularProgress />
+                        <CircularProgress/>
                     </Grid>
                 );
             case "success":
                 return (
                     <>
                         <Grid item>
-                            <CheckCircleIcon color="primary" fontSize="large" />
+                            <CheckCircleIcon color="primary" fontSize="large"/>
                         </Grid>
                         <Grid item>
                             <Typography variant="body1">{message}</Typography>
@@ -39,7 +39,7 @@ const WaitDialog: React.FC<WaitDialogProps> = ({ open, onClose, loadingState, me
                 return (
                     <>
                         <Grid item>
-                            <CancelIcon color="error" fontSize="large" />
+                            <CancelIcon color="error" fontSize="large"/>
                         </Grid>
                         <Grid item>
                             <Typography variant="body1">{message}</Typography>
@@ -57,7 +57,7 @@ const WaitDialog: React.FC<WaitDialogProps> = ({ open, onClose, loadingState, me
                 <Grid container justifyContent="flex-end" alignItems="center">
                     {loadingState !== "success" && (
                         <IconButton onClick={onClose} color="inherit">
-                            <CancelIcon />
+                            <CancelIcon/>
                         </IconButton>
                     )}
                 </Grid>
