@@ -40,7 +40,7 @@ function getFromChromeStorage(key: string): Promise<StorageResult> {
     });
 }
 
-export async function getGasPrice(netId: number, rpcUrl: string): Promise<number> {
+export async function getGasPrice(netId: number, rpcUrl: string): Promise<number | undefined> {
     try {
         // 发送 HTTP 请求到自定义 RPC 服务器
         const response = await fetch(rpcUrl, {
@@ -60,7 +60,7 @@ export async function getGasPrice(netId: number, rpcUrl: string): Promise<number
         const data = await response.json();
         const gasPriceWei = parseInt(data.result, 16);
         // 16进制转化为Gwei = 1e9 toFixed(6) 保留6位小数
-        const gasPriceGwei = (gasPriceWei / 1e9).toFixed(6);
+        const gasPriceGwei = (gasPriceWei / 1e9).toFixed(4);
         const price = parseFloat(gasPriceGwei);
 
         const result = await getFromChromeStorage('selectedNetworkId');
@@ -70,8 +70,7 @@ export async function getGasPrice(netId: number, rpcUrl: string): Promise<number
 
         return price;
     } catch (error) {
-        console.error(error);
-        return 0;
+        return undefined;
     }
 }
 
@@ -92,8 +91,7 @@ export async function getSavedNetworks(needGasPrice: boolean = false): Promise<N
         if (needGasPrice) {
             return result.networks as NetworkData[];
         } else {
-            const filteredNetworks = filterGasPrice(result.networks);
-            return filteredNetworks;
+            return filterGasPrice(result.networks);
         }
     } else {
         // 从chrome.storage.local获取数据并转化为Promise
@@ -107,12 +105,10 @@ export async function getSavedNetworks(needGasPrice: boolean = false): Promise<N
             if (needGasPrice) {
                 return parsedNetworks;
             } else {
-                const filteredNetworks = filterGasPrice(parsedNetworks);
-                return filteredNetworks;
+                return filterGasPrice(parsedNetworks);
             }
         } else {
-            const defaultNetworks = needGasPrice ? networkDataList : filterGasPrice(networkDataList);
-            return defaultNetworks;
+            return needGasPrice ? networkDataList : filterGasPrice(networkDataList);
         }
     }
 }

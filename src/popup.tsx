@@ -14,6 +14,10 @@ interface NetworkProps {
 }
 
 const Network: React.FC<NetworkProps> = ({name, gasPrice, isSelected, onClick}) => {
+    if (gasPrice === undefined) {
+        return null
+    }
+    const price = gasPrice < 0.0001 ? '小于0.0001' : gasPrice;
     return (
         <Box
             borderRadius="8px"
@@ -33,7 +37,7 @@ const Network: React.FC<NetworkProps> = ({name, gasPrice, isSelected, onClick}) 
                 {name}
             </Typography>
             <Typography variant="body2" sx={{fontSize: "14px"}}>
-                {gasPrice} Gwei
+                {price} Gwei
             </Typography>
         </Box>
     );

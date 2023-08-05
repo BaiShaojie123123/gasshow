@@ -59,18 +59,18 @@ export const EditNetworkForm: React.FC<EditNetworkFormProps> = ({
 
     const handleSave = async () => {
         setShowWaitDialog(true);
-
+        setWaitDialogLoadingState("loading");
 
         try {
             const gasPrice = await getGasPrice(selectedNetworkInfo.chainId, selectedNetworkInfo.rpcUrl);
 
-            if (gasPrice !== 0) {
+            if (gasPrice === undefined) {
+                setWaitDialogLoadingState("failure");
+                setWaitDialogMessage('连接网络失败');
+            } else {
                 setWaitDialogLoadingState("success");
                 setWaitDialogMessage('保存成功');
                 handleSaveNetwork(selectedNetworkInfo);
-            } else {
-                setWaitDialogLoadingState("failure");
-                setWaitDialogMessage('连接网络失败');
             }
         } catch (error) {
             setWaitDialogLoadingState("failure");
