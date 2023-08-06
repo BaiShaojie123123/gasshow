@@ -7,17 +7,26 @@ import {goHome, goSetting} from "./GoTo";
 
 
 interface NetworkProps {
-    name: string;
-    gasPrice?: number | undefined;
+    network: NetworkData;
     isSelected: boolean;
     onClick: () => void;
 }
 
-const Network: React.FC<NetworkProps> = ({name, gasPrice, isSelected, onClick}) => {
-    if (gasPrice === undefined) {
-        return null
+const Network: React.FC<NetworkProps> = ({network, isSelected, onClick}) => {
+    const [gasPrice, setGasPrice] = useState<number | undefined>(undefined);
+
+    useEffect(() => {
+        const fetchGasPrice = async () => {
+            const price = await getGasPrice(network.chainId, network.rpcUrl);
+            setGasPrice(price);
+        };
+        fetchGasPrice();
+    }, [network]);
+
+    let displayPrice = "获取中...";
+    if (gasPrice !== undefined) {
+        displayPrice = gasPrice < 0.0001 ? '小于0.0001 Gwei' : `${gasPrice} Gwei`;
     }
-    const price = gasPrice < 0.0001 ? '小于0.0001' : gasPrice;
     return (
         <Box
             borderRadius="8px"
@@ -34,10 +43,10 @@ const Network: React.FC<NetworkProps> = ({name, gasPrice, isSelected, onClick}) 
             }}
         >
             <Typography variant="body2" sx={{fontSize: "14px"}}>
-                {name}
+                {network.name}
             </Typography>
             <Typography variant="body2" sx={{fontSize: "14px"}}>
-                {price} Gwei
+                {displayPrice}
             </Typography>
         </Box>
     );
@@ -50,20 +59,19 @@ const Popup: React.FC = () => {
 
     useEffect(() => {
         const loadData = async () => {
-            const savedNetworks = await getSavedNetworks(true);
+            const savedNetworks = await getSavedNetworks();
 
-            // 创建一个 Promise 数组来并行获取每个网络的 gasPrice
-            const gasPricePromises = savedNetworks.map((network) =>
-                getGasPrice(network.chainId, network.rpcUrl)
-            );
-
-            // 使用 Promise.all 等待所有 gasPrice 请求完成
-            const gasPrices = await Promise.all(gasPricePromises);
+            // // 创建一个 Promise 数组来并行获取每个网络的 gasPrice
+            // const gasPricePromises = savedNetworks.map((network) =>
+            //     getGasPrice(network.chainId, network.rpcUrl)
+            // );
+            //
+            // // 使用 Promise.all 等待所有 gasPrice 请求完成
+            // const gasPrices = await Promise.all(gasPricePromises);
 
             // 将每个网络的 gasPrice 合并到对应的网络对象中
             const updatedNetworks = savedNetworks.map((network, index) => ({
-                ...network,
-                gasPrice: gasPrices[index],
+                ...network
             }));
 
             // 对 updatedNetworks 数组按照 chainId 进行升序排序
@@ -194,8 +202,7 @@ const Popup: React.FC = () => {
                         <Grid item key={network.chainId}>
                             <Box key={network.chainId} my={1}>
                                 <Network
-                                    name={network.name}
-                                    gasPrice={network.gasPrice}
+                                    network={network}
                                     isSelected={selectedNetworkId === network.chainId}
                                     onClick={() => handleNetworkClick(network.chainId)}
                                 />
