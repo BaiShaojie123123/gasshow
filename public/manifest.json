@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Gas Show",
   "description": "Blockchain multi-chain real-time gas price",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "action": {
     "default_icon": {
       "192": "imgs/logo/logo192.png",
