@@ -11,11 +11,14 @@ export function formatPrice(price: number | undefined): string {
         // 如果小于0则 截取小数点后两位 4代表截取的长度 0.00 共4位
         return price.toString().substring(0, 4);
     } else if (price !== undefined) {
+        // 截取小数点后
         const parts = price.toString().split(".");
-        if (parts.length > 0) {
+        // 整数位长度大于1则返回整数位置
+        if (parts[0].length > 1) {
             return parts[0];
         } else {
-            return "";
+            // 整数位长度小于等于1则返回整数位+一个小数位
+            return parts[0] + '.' + parts[1].substring(0, 2);
         }
     } else {
         return "";
